@@ -1374,7 +1374,7 @@ public final class AsciiString implements CharSequence, Comparable<CharSequence>
             new HashingStrategy<CharSequence>() {
         @Override
         public int hashCode(CharSequence o) {
-            return AsciiString.hashCode(o);
+            return AsciiString.hashCodeCaseSensitive(o);
         }
 
         @Override
@@ -1417,6 +1417,31 @@ public final class AsciiString implements CharSequence, Comparable<CharSequence>
         }
 
         return PlatformDependent.hashCodeAscii(value);
+    }
+
+    /**
+     * Returns the case-sensitive hash code of the specified string using the
+     * same algorithm as {@link String#hashCode()}.
+     */
+    public static int hashCodeCaseSensitive(CharSequence value) {
+        if (value == null) {
+            return 0;
+        }
+        if (value.getClass() == AsciiString.class) {
+            AsciiString string = (AsciiString) value;
+            byte[] val = string.value;
+            int hash = 0;
+            for (int i = string.offset; i < string.offset + string.length; ++i) {
+                hash = 31 * hash + b2c(val[i]);
+            }
+            return hash;
+        }
+
+        int h = 0;
+        for (int i = 0; i < value.length(); ++i) {
+            h = 31 * h + value.charAt(i);
+        }
+        return h;
     }
 
     /**
